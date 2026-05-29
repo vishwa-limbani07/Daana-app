@@ -19,9 +19,17 @@ export const initSocket = (httpServer) => {
     .map((s) => s.trim())
     .filter(Boolean);
 
+  const VERCEL_PATTERN = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+
   io = new Server(httpServer, {
     cors: {
-      origin: allowedOrigins,
+      origin: (origin, cb) => {
+        if (!origin) return cb(null, true);
+        if (allowedOrigins.includes(origin) || VERCEL_PATTERN.test(origin)) {
+          return cb(null, true);
+        }
+        cb(new Error(`CORS: origin ${origin} not allowed`));
+      },
       credentials: true,
     },
   });
