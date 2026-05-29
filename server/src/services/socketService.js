@@ -13,9 +13,15 @@ import { Server } from 'socket.io';
 let io = null;
 
 export const initSocket = (httpServer) => {
+  // Same multi-origin handling as Express CORS — keep them in sync.
+  const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:5173',
+      origin: allowedOrigins,
       credentials: true,
     },
   });

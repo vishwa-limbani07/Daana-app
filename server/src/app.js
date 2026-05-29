@@ -29,8 +29,20 @@ import { errorHandler } from './middleware/errorHandler.js';
 const app = express();
 
 // --- Global middleware ---
+// CLIENT_URL can be a single URL or a comma-separated list, so you can
+// allow both a Vercel preview URL and a custom domain without a code change.
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, cb) => {
+    // Allow requests with no Origin header (curl, server-to-server, mobile).
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    cb(new Error(`CORS: origin ${origin} not allowed`));
+  },
   credentials: true,
 }));
 
