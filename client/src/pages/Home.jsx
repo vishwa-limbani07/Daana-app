@@ -88,7 +88,7 @@ export default function Home() {
 
         <div className="relative max-w-2xl">
           <span className="inline-block bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs font-medium mb-4">
-            Crowdfunding · Made simple
+            दान · The art of giving
           </span>
           <h1 className="text-4xl md:text-5xl font-bold leading-tight">
             Fund the ideas that matter.
@@ -140,7 +140,7 @@ export default function Home() {
         <section>
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="text-2xl font-bold">Featured campaigns</h2>
-            <span className="text-sm text-gray-500">Fresh on CrowdFund</span>
+            <span className="text-sm text-gray-500">Fresh on Daana</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featured.map((c) => <CampaignCard key={c._id} campaign={c} />)}
@@ -187,7 +187,7 @@ export default function Home() {
       {/* ============= HOW IT WORKS ============= */}
       <section className="bg-white rounded-2xl border border-gray-100 p-8 md:p-12">
         <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold">How CrowdFund works</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">How Daana works</h2>
           <p className="text-gray-500 mt-2">Three steps from idea to funded.</p>
         </div>
 

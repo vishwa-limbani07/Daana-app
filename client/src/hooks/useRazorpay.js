@@ -25,7 +25,7 @@ export const useRazorpay = () => {
       amount: Math.round(amount * 100), // paise
       currency: 'INR',
       order_id: orderId,
-      name: 'CrowdFund',
+      name: 'Daana',
       prefill: { name, email },
       theme: { color: '#4f46e5' },
       handler: function (response) {

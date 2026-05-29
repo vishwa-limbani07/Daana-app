@@ -12,7 +12,7 @@ export default function Navbar() {
   return (
     <header className="bg-white border-b">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="font-bold text-xl text-indigo-600">CrowdFund</Link>
+        <Link to="/" className="font-bold text-xl text-indigo-600">Daana</Link>
         <nav className="flex items-center gap-4 text-sm">
           <Link to="/" className="hover:text-indigo-600">Browse</Link>
           {user ? (

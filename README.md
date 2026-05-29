@@ -1,4 +1,6 @@
-# CrowdFund — Razorpay-powered crowdfunding platform
+# Daana — Razorpay-powered crowdfunding platform
+
+> **Daana** (दान) is Sanskrit for *the act of giving* — a name that captures what this project enables.
 
 A production-grade Kickstarter clone built with the MERN stack. Donors back fundraising campaigns through Razorpay, and campaign progress updates **live across every viewer** via WebSocket rooms.
 
@@ -8,7 +10,7 @@ A production-grade Kickstarter clone built with the MERN stack. Donors back fund
 
 ## Why this project
 
-Payment integrations are interesting because they touch three hard problems at once: **cryptographic verification**, **idempotency**, and **race conditions** between synchronous callbacks and asynchronous webhooks. CrowdFund solves all three with patterns you'd see in production code — not the happy-path tutorials.
+Payment integrations are interesting because they touch three hard problems at once: **cryptographic verification**, **idempotency**, and **race conditions** between synchronous callbacks and asynchronous webhooks. Daana solves all three with patterns you'd see in production code — not the happy-path tutorials.
 
 If you're hiring and want to skip to the parts that show engineering judgment, jump to [the technical highlights](#technical-highlights).
 
@@ -153,8 +155,8 @@ One UI click = at most one Razorpay order = at most one charge.
 
 ### 1. Clone and install
 ```bash
-git clone <your-repo-url> crowdfund
-cd crowdfund
+git clone <your-repo-url> daana
+cd daana
 
 cd server && npm install
 cd ../client && npm install
@@ -220,7 +222,7 @@ _Steps coming once deployed — Render (backend), Vercel (frontend), MongoDB Atl
 ## Project layout
 
 ```
-crowdfund/
+daana/
 ├── client/
 │   └── src/
 │       ├── api/             # axios clients (one per resource)

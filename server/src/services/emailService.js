@@ -102,7 +102,7 @@ const receiptTemplate = ({ donorName, formattedAmount, campaignTitle, campaignUr
   <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 32px 0;" />
 
   <p style="font-size: 12px; color: #9ca3af;">
-    You received this email because you made a donation through CrowdFund.
+    You received this email because you made a donation through Daana.
     Keep this email for your records.
   </p>
 </div>

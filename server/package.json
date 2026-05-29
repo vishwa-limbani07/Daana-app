@@ -1,7 +1,7 @@
 {
-  "name": "crowdfund-server",
+  "name": "daana-server",
   "version": "1.0.0",
-  "description": "Backend for CrowdFund Platform — Express + MongoDB + Razorpay",
+  "description": "Backend for Daana — Express + MongoDB + Razorpay",
   "type": "module",
   "main": "src/server.js",
   "engines": {

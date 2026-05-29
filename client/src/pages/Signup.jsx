@@ -29,7 +29,7 @@ export default function Signup() {
     try {
       const { data } = await signup(form);
       dispatch(setAuth(data));   // stores user + token, persists token to localStorage
-      toast.success(`Welcome to CrowdFund, ${data.user.name.split(' ')[0]}!`);
+      toast.success(`Welcome to Daana, ${data.user.name.split(' ')[0]}!`);
       navigate('/');
     } catch (err) {
       const msg = err.response?.data?.message || 'Signup failed';
