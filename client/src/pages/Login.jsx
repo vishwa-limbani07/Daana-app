@@ -7,6 +7,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setAuth } from '../store/authSlice.js';
 import { login } from '../api/authApi.js';
+import { useToast } from '../hooks/useToast.js';
 import Button from '../components/common/Button.jsx';
 
 export default function Login() {
@@ -15,6 +16,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -25,9 +27,12 @@ export default function Login() {
     try {
       const { data } = await login(form);
       dispatch(setAuth(data));
+      toast.success(`Welcome back, ${data.user.name.split(' ')[0]}!`);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      const msg = err.response?.data?.message || 'Login failed';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

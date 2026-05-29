@@ -9,6 +9,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setAuth } from '../store/authSlice.js';
 import { signup } from '../api/authApi.js';
+import { useToast } from '../hooks/useToast.js';
 import Button from '../components/common/Button.jsx';
 
 export default function Signup() {
@@ -17,6 +18,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -27,9 +29,12 @@ export default function Signup() {
     try {
       const { data } = await signup(form);
       dispatch(setAuth(data));   // stores user + token, persists token to localStorage
+      toast.success(`Welcome to CrowdFund, ${data.user.name.split(' ')[0]}!`);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Signup failed');
+      const msg = err.response?.data?.message || 'Signup failed';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

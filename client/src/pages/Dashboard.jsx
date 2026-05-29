@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux';
 import { listMyCampaigns } from '../api/campaignApi.js';
 import { listMyDonations } from '../api/donationApi.js';
 import ProgressBar from '../components/campaign/ProgressBar.jsx';
-import Loader from '../components/common/Loader.jsx';
+import Skeleton from '../components/common/Skeleton.jsx';
 import { formatCurrency } from '../utils/formatCurrency.js';
 import { formatDate, daysLeft } from '../utils/formatDate.js';
 
@@ -48,7 +48,7 @@ export default function Dashboard() {
   }, [token]);
 
   if (!token) return <Navigate to="/login" replace />;
-  if (loading) return <Loader />;
+  if (loading) return <DashboardSkeleton />;
   if (error) return <p className="text-red-600">{error}</p>;
 
   // Computed stats — reduce over the arrays once.
@@ -200,5 +200,36 @@ function EmptyState({ text, ctaText, ctaTo }) {
       <p className="text-gray-500 mb-4">{text}</p>
       <Link to={ctaTo} className="text-indigo-600 hover:underline">{ctaText}</Link>
     </div>
+  );
+}
+
+// Mirrors the real Dashboard layout — stats cards + two list sections.
+// Keeps the page from looking empty during the initial fetch.
+function DashboardSkeleton() {
+  return (
+    <section className="space-y-8">
+      <Skeleton className="h-10 w-64" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="bg-white rounded-lg shadow p-4 space-y-2">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-7 w-32" />
+          </div>
+        ))}
+      </div>
+      <div className="space-y-3">
+        <Skeleton className="h-6 w-40" />
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i} className="bg-white rounded-lg shadow p-4 flex gap-4">
+            <Skeleton className="w-20 h-20 flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-2 w-full" />
+              <Skeleton className="h-3 w-3/4" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

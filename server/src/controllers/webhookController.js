@@ -10,6 +10,7 @@
 
 import Campaign from '../models/Campaign.js';
 import Donation from '../models/Donation.js';
+import RewardTier from '../models/RewardTier.js';
 import * as paymentService from '../services/paymentService.js';
 import { emitDonation } from '../services/socketService.js';
 import { sendDonationReceipt } from '../services/emailService.js';
@@ -55,11 +56,41 @@ export const handleRazorpayWebhook = asyncHandler(async (req, res) => {
           { $inc: { raisedAmount: donation.amount, donorCount: 1 } },
           { new: true }
         );
+
+        // Atomic tier claim — same pattern as verifyPayment, see comments there.
+        if (donation.rewardTier) {
+          const claimed = await RewardTier.findOneAndUpdate(
+            {
+              _id: donation.rewardTier,
+              $or: [
+                { limit: null },
+                { $expr: { $lt: ['$claimed', '$limit'] } },
+              ],
+            },
+            { $inc: { claimed: 1 } },
+            { new: true }
+          );
+          if (!claimed) {
+            console.warn(
+              `[tier] over-claim via webhook on tier ${donation.rewardTier}`
+            );
+          }
+        }
         emitDonation(String(campaignId), {
           raisedAmount: campaign.raisedAmount,
           donorCount: campaign.donorCount,
-          amount: donation.amount,
-          isAnonymous: donation.isAnonymous,
+          donation: {
+            _id: donation._id,
+            amount: donation.amount,
+            message: donation.message,
+            createdAt: donation.createdAt,
+            isAnonymous: donation.isAnonymous,
+            donor: donation.isAnonymous
+              ? null
+              : donation.donor
+                ? { name: donation.donor.name, avatar: donation.donor.avatar }
+                : null,
+          },
         });
 
         // Fire-and-forget receipt.

@@ -18,6 +18,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { createCampaign } from '../api/campaignApi.js';
+import { useToast } from '../hooks/useToast.js';
 import Button from '../components/common/Button.jsx';
 
 const CATEGORIES = ['education', 'medical', 'community', 'tech', 'creative', 'other'];
@@ -44,6 +45,7 @@ export default function CreateCampaign() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const toast = useToast();
 
   // Generate a preview URL whenever the file changes. Clean it up on unmount
   // or when the file changes again — otherwise the browser leaks memory.
@@ -91,9 +93,12 @@ export default function CreateCampaign() {
     setLoading(true);
     try {
       const { data } = await createCampaign(fd);
+      toast.success('Campaign published — share the link with backers!');
       navigate(`/campaigns/${data.campaign._id}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create campaign');
+      const msg = err.response?.data?.message || 'Failed to create campaign';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

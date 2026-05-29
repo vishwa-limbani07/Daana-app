@@ -20,8 +20,12 @@ import {
 } from '../controllers/campaignController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { uploadCoverImage } from '../middleware/upload.js';
+import { tierByCampaignRouter } from './tierRoutes.js';
 
 const router = Router();
+
+// Nested tiers — handles GET/POST /api/campaigns/:id/tiers
+router.use('/:campaignId/tiers', tierByCampaignRouter);
 
 // Public reads
 router.get('/', listCampaigns);

@@ -22,6 +22,7 @@ import authRoutes from './routes/authRoutes.js';
 import campaignRoutes from './routes/campaignRoutes.js';
 import donationRoutes from './routes/donationRoutes.js';
 import webhookRoutes from './routes/webhookRoutes.js';
+import { tierRouter } from './routes/tierRoutes.js';
 
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -49,6 +50,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/donations', donationRoutes);
+app.use('/api/tiers', tierRouter);
 
 // --- 404 fallback ---
 app.use((req, res) => {

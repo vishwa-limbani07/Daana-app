@@ -12,6 +12,7 @@
 import crypto from 'crypto';
 import Campaign from '../models/Campaign.js';
 import Donation from '../models/Donation.js';
+import RewardTier from '../models/RewardTier.js';
 import * as paymentService from '../services/paymentService.js';
 import { emitDonation } from '../services/socketService.js';
 import { sendDonationReceipt } from '../services/emailService.js';
@@ -54,6 +55,24 @@ export const createOrder = asyncHandler(async (req, res) => {
   }
   if (new Date(campaign.deadline) < new Date()) {
     return res.status(400).json({ message: 'campaign deadline has passed' });
+  }
+
+  // --- Tier validation (optional — donations can be tier-less)
+  let tier = null;
+  if (rewardTierId) {
+    tier = await RewardTier.findOne({ _id: rewardTierId, campaign: campaignId });
+    if (!tier) {
+      return res.status(404).json({ message: 'reward tier not found' });
+    }
+    if (amountNum < tier.minAmount) {
+      return res.status(400).json({
+        message: `This tier requires a minimum donation of ₹${tier.minAmount}`,
+      });
+    }
+    // Optimistic stock check — final guard is the atomic $inc at verify time.
+    if (tier.limit !== null && tier.claimed >= tier.limit) {
+      return res.status(409).json({ message: 'This reward tier is sold out' });
+    }
   }
 
   // --- Create Razorpay order. The receipt is a short reference echoed back.
@@ -143,14 +162,54 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     { new: true }
   );
 
+  // 3b. THE ATOMIC TIER CLAIM.
+  //
+  // Filter requires "(limit is null) OR (claimed < limit)" — checked atomically
+  // in the same MongoDB operation that does the $inc. If two donations race
+  // for the last spot, exactly ONE matches the filter; the other gets `null`
+  // and the tier counter stays correct.
+  //
+  // $expr lets us compare two FIELDS of the same document inside the filter.
+  // Plain MongoDB queries can only compare a field to a value, not two fields.
+  if (donation.rewardTier) {
+    const claimed = await RewardTier.findOneAndUpdate(
+      {
+        _id: donation.rewardTier,
+        $or: [
+          { limit: null },
+          { $expr: { $lt: ['$claimed', '$limit'] } },
+        ],
+      },
+      { $inc: { claimed: 1 } },
+      { new: true }
+    );
+    if (!claimed) {
+      // Lost the race for the last spot. The donation still went through —
+      // we already charged the user. Log it so the creator can resolve manually.
+      console.warn(
+        `[tier] over-claim avoided on tier ${donation.rewardTier} — ` +
+        `donation ${donation._id} processed without tier assignment`
+      );
+    }
+  }
+
   // 4. Push the new totals to everyone viewing the campaign page.
   //    Only fires here OR in the webhook handler — never both, thanks to
   //    the atomic findOneAndUpdate above.
+  //    Strip donor info if anonymous — same rule as the public list endpoint.
   emitDonation(String(campaignId), {
     raisedAmount: campaign.raisedAmount,
     donorCount: campaign.donorCount,
-    amount: donation.amount,
-    isAnonymous: donation.isAnonymous,
+    donation: {
+      _id: donation._id,
+      amount: donation.amount,
+      message: donation.message,
+      createdAt: donation.createdAt,
+      isAnonymous: donation.isAnonymous,
+      donor: donation.isAnonymous
+        ? null
+        : { name: req.user.name, avatar: req.user.avatar },
+    },
   });
 
   // 5. Fire-and-forget receipt. Never await — the user already has their
@@ -171,5 +230,35 @@ export const listMyDonations = asyncHandler(async (req, res) => {
   const items = await Donation.find({ donor: req.user._id, status: 'success' })
     .sort({ createdAt: -1 })
     .populate('campaign', 'title coverImage');
+  res.json({ items });
+});
+
+// GET /api/donations/campaign/:id
+// Public endpoint — returns the most recent N successful donations for a campaign.
+// IMPORTANT: anonymous donations have their donor info stripped on the server.
+// Never trust the frontend to "respect" an anonymous flag — strip the data
+// before it ever leaves the API.
+export const listCampaignDonations = asyncHandler(async (req, res) => {
+  const limit = Math.min(Number(req.query.limit) || 20, 50);
+
+  const raw = await Donation.find({ campaign: req.params.id, status: 'success' })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .populate('donor', 'name avatar');
+
+  const items = raw.map((d) => ({
+    _id: d._id,
+    amount: d.amount,
+    message: d.message,
+    createdAt: d.createdAt,
+    isAnonymous: d.isAnonymous,
+    // Strip donor PII for anonymous donations
+    donor: d.isAnonymous
+      ? null
+      : d.donor
+        ? { name: d.donor.name, avatar: d.donor.avatar }
+        : null,
+  }));
+
   res.json({ items });
 });
