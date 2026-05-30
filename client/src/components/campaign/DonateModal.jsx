@@ -145,7 +145,7 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
             Amount
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-3xl font-serif text-gray-400">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base font-serif text-gray-500 pointer-events-none">
               ₹
             </span>
             <input
@@ -158,7 +158,8 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
               placeholder="0"
               required
               autoFocus
-              className="w-full bg-white border border-gray-300 rounded-xl pl-12 pr-4 py-4 text-3xl font-semibold tabular-nums text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full bg-white border border-gray-300 rounded-lg pl-8 pr-3 py-2.5 text-lg font-semibold tabular-nums text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <p className="text-xs text-gray-500 mt-1.5">
