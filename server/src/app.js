@@ -29,20 +29,29 @@ import { errorHandler } from './middleware/errorHandler.js';
 const app = express();
 
 // --- Global middleware ---
-// CLIENT_URL can be a single URL or a comma-separated list, so you can
-// allow both a local dev URL and a custom production domain without code changes.
+// CLIENT_URL can be a single URL or a comma-separated list, so production
+// can list a custom domain alongside Vercel without code changes.
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
   .map((s) => s.trim())
   .filter(Boolean);
 
-// Any *.vercel.app subdomain is also allowed automatically — covers our
-// production Vercel deployment AND any preview deployments (PRs etc.)
-// without having to update CLIENT_URL each time.
-const VERCEL_PATTERN = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+// Pattern allow-lists. These are policy-as-code — true regardless of env
+// vars — so localhost and Vercel preview deploys ALWAYS work without
+// requiring CLIENT_URL maintenance.
+//
+//   LOCALHOST_PATTERN  — http(s)://localhost:<port> and http(s)://127.0.0.1:<port>.
+//                        Localhost is never reachable from the public internet,
+//                        so it can't be hijacked by an attacker's domain.
+//   VERCEL_PATTERN     — any *.vercel.app subdomain. Covers production + every
+//                        preview deploy without manual env updates.
+const LOCALHOST_PATTERN = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
+const VERCEL_PATTERN    = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
 
 const isAllowedOrigin = (origin) =>
-  allowedOrigins.includes(origin) || VERCEL_PATTERN.test(origin);
+  allowedOrigins.includes(origin)
+  || LOCALHOST_PATTERN.test(origin)
+  || VERCEL_PATTERN.test(origin);
 
 app.use(cors({
   origin: (origin, cb) => {

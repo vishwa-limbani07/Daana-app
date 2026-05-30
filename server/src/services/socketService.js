@@ -13,19 +13,25 @@ import { Server } from 'socket.io';
 let io = null;
 
 export const initSocket = (httpServer) => {
-  // Same multi-origin handling as Express CORS — keep them in sync.
+  // Keep the same policy as Express CORS in app.js.
+  // Localhost + *.vercel.app are baked in as policy regardless of env.
   const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const VERCEL_PATTERN = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+  const LOCALHOST_PATTERN = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
+  const VERCEL_PATTERN    = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
 
   io = new Server(httpServer, {
     cors: {
       origin: (origin, cb) => {
         if (!origin) return cb(null, true);
-        if (allowedOrigins.includes(origin) || VERCEL_PATTERN.test(origin)) {
+        if (
+          allowedOrigins.includes(origin)
+          || LOCALHOST_PATTERN.test(origin)
+          || VERCEL_PATTERN.test(origin)
+        ) {
           return cb(null, true);
         }
         cb(new Error(`CORS: origin ${origin} not allowed`));
