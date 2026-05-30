@@ -8,7 +8,7 @@
 export const THEMES = {
   indigo: {
     name: 'Indigo Aurora',
-    description: 'Modern fintech — the current look.',
+    description: 'Modern fintech. The current look.',
     showcaseGradient: 'bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600',
     pageBg: 'bg-gray-50',
     button: 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800',
@@ -30,7 +30,7 @@ export const THEMES = {
 
   sunset: {
     name: 'Marigold Sunset',
-    description: 'Warm Indian-festival vibes. Daana means giving — this palette feels generous.',
+    description: 'Warm Indian-festival vibes. Daana means giving, this palette feels generous.',
     showcaseGradient: 'bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500',
     pageBg: 'bg-amber-50/40',
     button: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800',
@@ -52,7 +52,7 @@ export const THEMES = {
 
   emerald: {
     name: 'Emerald Trust',
-    description: 'Calm and professional. Signals reliability — good for fundraising.',
+    description: 'Calm and professional. Signals reliability, good for fundraising.',
     showcaseGradient: 'bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700',
     pageBg: 'bg-emerald-50/30',
     button: 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800',

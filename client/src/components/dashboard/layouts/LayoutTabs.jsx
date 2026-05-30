@@ -99,7 +99,7 @@ function OverviewPanel({ campaigns, donations, onJumpTab }) {
 }
 
 function CampaignsPanel({ campaigns }) {
-  if (campaigns.length === 0) return <EmptyTile preset="campaigns" large title="You haven't started a campaign yet" text="Launch your first campaign in minutes — add a story, set a goal, share the link." ctaText="Start your first campaign" ctaTo="/create" />;
+  if (campaigns.length === 0) return <EmptyTile preset="campaigns" large title="You haven't started a campaign yet" text="Launch your first campaign in minutes. Add a story, set a goal, share the link." ctaText="Start your first campaign" ctaTo="/create" />;
   return <div className="space-y-3">{campaigns.map((c) => <CampaignRow key={c._id} campaign={c} />)}</div>;
 }
 

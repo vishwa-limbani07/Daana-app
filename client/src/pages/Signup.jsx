@@ -20,7 +20,7 @@ const LAYOUTS = {
 
 const COPY = {
   title: 'Create your account',
-  subtitle: 'Start backing ideas you love — or launch your own.',
+  subtitle: 'Start backing ideas you love, or launch your own.',
   showcaseHeading: 'Join a community of backers.',
   showcaseSub: 'Sign up in 30 seconds. Discover campaigns across India and fund the ones that matter to you.',
 };

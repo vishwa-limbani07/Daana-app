@@ -82,7 +82,7 @@ export default function Landing() {
               style={{ animation: 'riseIn 700ms cubic-bezier(0.16,1,0.3,1) 250ms backwards' }}
             >
               A crowdfunding platform built for India. Back projects you believe in,
-              or launch your own in minutes — secured end-to-end by Razorpay,
+              or launch your own in minutes. Secured end-to-end by Razorpay,
               updated live across every viewer.
             </p>
 

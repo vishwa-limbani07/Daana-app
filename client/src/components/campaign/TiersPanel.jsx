@@ -59,7 +59,7 @@ export default function TiersPanel({ campaignId, isCreator, onSelect }) {
       ) : tiers.length === 0 ? (
         <p className="text-sm text-gray-500 mb-3">
           {isCreator
-            ? 'No tiers yet — add one to give backers something to choose.'
+            ? 'No tiers yet. Add one to give backers something to choose.'
             : 'This campaign accepts donations without specific reward tiers.'}
         </p>
       ) : (

@@ -1,9 +1,14 @@
 // DonateModal.jsx — donation flow with optional reward tier.
 //
-// FLOW (unchanged from before, with one addition):
+// Design changes (this revision):
+//   - Removed quick-pick chips. Any amount allowed (minimum ₹1, or tier min).
+//   - Amount input is now the visual centerpiece — large serif numeral,
+//     ₹ prefix, generous padding. Feels like a check, not a form field.
+//
+// FLOW:
 //   1. User picks amount, optional message, anonymous toggle.
-//      If a tier is preselected (passed via the `tier` prop), the amount
-//      defaults to the tier's minAmount and can't go below it.
+//      If a tier is preselected, amount defaults to tier.minAmount and can't
+//      go below.
 //   2. Backend validates tier (exists, has stock, amount >= minAmount).
 //   3. Razorpay checkout → verify → atomic tier claim on success.
 
@@ -17,25 +22,23 @@ import { useRazorpay } from '../../hooks/useRazorpay.js';
 import { useToast } from '../../hooks/useToast.js';
 import { formatCurrency } from '../../utils/formatCurrency.js';
 
-const QUICK_AMOUNTS = [500, 1000, 2500, 5000];
-
 export default function DonateModal({ open, onClose, campaign, tier, onSuccess }) {
   const user = useSelector((s) => s.auth.user);
   const navigate = useNavigate();
   const openCheckout = useRazorpay();
   const toast = useToast();
 
-  // If a tier is supplied, start at its minAmount; otherwise default to 1000.
   const minAmount = tier?.minAmount || 1;
-  const [amount, setAmount] = useState(tier?.minAmount || 1000);
+  // No default — let the field show the placeholder so users type their own.
+  const [amount, setAmount] = useState(tier?.minAmount || '');
   const [message, setMessage] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Reset amount when tier changes (open → reopen with different tier).
+  // Reset amount when modal opens or the selected tier changes.
   useEffect(() => {
-    if (open) setAmount(tier?.minAmount || 1000);
+    if (open) setAmount(tier?.minAmount || '');
   }, [open, tier?._id]);
 
   // Fresh idempotency key each time the modal opens.
@@ -43,6 +46,9 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
     () => (open ? crypto.randomUUID() : null),
     [open]
   );
+
+  const amountNum = Number(amount);
+  const amountValid = Number.isFinite(amountNum) && amountNum >= minAmount;
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -53,8 +59,12 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
       navigate('/login');
       return;
     }
-    if (!Number.isFinite(amount) || amount < minAmount) {
-      setError(`Minimum donation for this tier is ${formatCurrency(minAmount)}`);
+    if (!amountValid) {
+      setError(
+        tier
+          ? `Minimum donation for this tier is ${formatCurrency(minAmount)}`
+          : `Please enter an amount of at least ${formatCurrency(minAmount)}`
+      );
       return;
     }
 
@@ -62,7 +72,7 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
     try {
       const { data: order } = await createOrder({
         campaignId: campaign._id,
-        amount,
+        amount: amountNum,
         message,
         isAnonymous,
         rewardTierId: tier?._id,
@@ -81,7 +91,7 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
               razorpay_payment_id: resp.razorpay_payment_id,
               razorpay_signature: resp.razorpay_signature,
             });
-            toast.success(`Thank you! Your donation of ${formatCurrency(amount)} was successful. 🎉`);
+            toast.success(`Thank you! Your donation of ${formatCurrency(amountNum)} was successful. 🎉`);
             onSuccess?.();
             onClose();
           } catch (err) {
@@ -95,7 +105,7 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
         onFailure: (err) => {
           const msg = err?.description || err?.reason || 'Payment cancelled';
           setError(msg);
-          if (err?.reason !== 'dismissed') toast.error(msg); // don't toast a manual cancel
+          if (err?.reason !== 'dismissed') toast.error(msg);
           setLoading(false);
         },
       });
@@ -107,17 +117,20 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
 
   return (
     <Modal open={open} onClose={loading ? () => {} : onClose}>
-      <h2 className="text-xl font-bold mb-1">
-        {tier ? `Back the "${tier.title}" tier` : 'Support this campaign'}
-      </h2>
-      <p className="text-sm text-gray-500 mb-4 truncate">{campaign?.title}</p>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold tracking-tight">
+          {tier ? `Back the "${tier.title}" tier` : 'Support this campaign'}
+        </h2>
+        <p className="text-sm text-gray-500 mt-1 truncate">{campaign?.title}</p>
+      </div>
 
       {/* Tier summary if one is selected */}
       {tier && (
-        <div className="mb-4 p-3 rounded-lg border border-emerald-200 bg-emerald-50">
+        <div className="mb-5 p-3 rounded-xl border border-emerald-200 bg-emerald-50">
           <div className="flex justify-between items-baseline">
             <span className="font-semibold">{tier.title}</span>
-            <span className="text-emerald-600 font-medium">
+            <span className="text-emerald-700 font-medium">
               {formatCurrency(tier.minAmount)}+
             </span>
           </div>
@@ -125,69 +138,79 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="space-y-4">
-        {/* Quick chips only when no tier (tier locks the minimum) */}
-        {!tier && (
-          <div className="flex flex-wrap gap-2">
-            {QUICK_AMOUNTS.map((amt) => (
-              <button
-                type="button"
-                key={amt}
-                onClick={() => setAmount(amt)}
-                className={`px-3 py-1 rounded border text-sm ${
-                  amount === amt
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-emerald-400'
-                }`}
-              >
-                {formatCurrency(amt)}
-              </button>
-            ))}
+      <form onSubmit={onSubmit} className="space-y-5">
+        {/* Amount — the centerpiece */}
+        <div>
+          <label htmlFor="donateAmount" className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
+            Amount
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-3xl font-serif text-gray-400">
+              ₹
+            </span>
+            <input
+              id="donateAmount"
+              type="number"
+              min={minAmount}
+              step="any"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0"
+              required
+              autoFocus
+              className="w-full bg-white border border-gray-300 rounded-xl pl-12 pr-4 py-4 text-3xl font-semibold tabular-nums text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
           </div>
-        )}
+          <p className="text-xs text-gray-500 mt-1.5">
+            {tier
+              ? `Minimum for this tier: ${formatCurrency(minAmount)}`
+              : 'Any amount helps. Even ₹10 counts.'}
+          </p>
+        </div>
 
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">
-            Amount (₹){tier && ` — minimum ${formatCurrency(minAmount)}`}
-          </span>
-          <input
-            type="number"
-            min={minAmount}
-            value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
-            required
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
-        </label>
-
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Message (optional)</span>
+        {/* Message */}
+        <div>
+          <label htmlFor="donateMessage" className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
+            Message <span className="normal-case text-gray-400">(optional)</span>
+          </label>
           <textarea
+            id="donateMessage"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             maxLength={280}
             rows={2}
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder="Add a note for the creator..."
+            className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           />
-        </label>
+        </div>
 
-        <label className="flex items-center gap-2 text-sm">
+        {/* Anonymous toggle */}
+        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
           <input
             type="checkbox"
             checked={isAnonymous}
             onChange={(e) => setIsAnonymous(e.target.checked)}
+            className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
           />
           Donate anonymously
         </label>
 
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 pt-1">
           <Button type="button" variant="secondary" onClick={onClose} disabled={loading} className="flex-1">
             Cancel
           </Button>
-          <Button type="submit" disabled={loading} className="flex-1">
-            {loading ? 'Processing...' : `Donate ${formatCurrency(amount || 0)}`}
+          <Button type="submit" disabled={loading || !amountValid} className="flex-1">
+            {loading
+              ? 'Processing...'
+              : amountValid
+                ? `Donate ${formatCurrency(amountNum)}`
+                : 'Enter an amount'}
           </Button>
         </div>
       </form>

@@ -113,7 +113,7 @@ export function StoryBlock({ story, creator, createdAt, withDropCap = true }) {
         {creator?.name && (
           <div className="mt-12 pt-6 border-t border-gray-100 flex flex-col items-start gap-1">
             <p className="font-serif italic text-gray-700">
-              — {creator.name}
+              {creator.name}
             </p>
             {createdAt && (
               <p className="text-xs text-gray-400 uppercase tracking-widest">

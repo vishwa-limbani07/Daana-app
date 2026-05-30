@@ -25,7 +25,7 @@ export default function RewardTierList({ tiers, selectedId, onSelect }) {
             <p className="text-sm text-gray-600 mt-1">{t.description}</p>
             {t.limit !== null && (
               <p className="text-xs text-gray-500 mt-2">
-                {t.claimed} / {t.limit} claimed{soldOut && ' — SOLD OUT'}
+                {t.claimed} / {t.limit} claimed{soldOut && ' · SOLD OUT'}
               </p>
             )}
           </button>

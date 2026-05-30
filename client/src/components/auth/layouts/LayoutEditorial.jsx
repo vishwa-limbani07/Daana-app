@@ -21,7 +21,7 @@ export default function LayoutEditorial({ mode, formProps, copy }) {
         <aside className="md:col-span-3">
           <div className="flex md:flex-col items-baseline md:items-start gap-3 md:gap-12">
             <div className="text-xs uppercase tracking-[0.3em] text-gray-500">
-              {isSignup ? '01 — Sign up' : '01 — Log in'}
+              {isSignup ? '01 · Sign up' : '01 · Log in'}
             </div>
             <div className="text-3xl md:text-5xl font-serif text-gray-900 leading-none">दान</div>
           </div>
