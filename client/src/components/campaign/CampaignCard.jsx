@@ -46,7 +46,7 @@ export default function CampaignCard({ campaign }) {
       </div>
 
       <div className="p-4">
-        <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors min-h-[3rem]">
+        <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-emerald-700 transition-colors min-h-[3rem]">
           {campaign.title}
         </h3>
 
@@ -57,7 +57,7 @@ export default function CampaignCard({ campaign }) {
             <span className="font-semibold text-gray-900">{formatCurrency(campaign.raisedAmount)}</span>
             <span className="text-gray-500"> raised</span>
           </span>
-          <span className="text-xs font-medium text-indigo-600">{pct}%</span>
+          <span className="text-xs font-medium text-emerald-700">{pct}%</span>
         </div>
 
         <div className="flex justify-between text-xs text-gray-500 mt-2">

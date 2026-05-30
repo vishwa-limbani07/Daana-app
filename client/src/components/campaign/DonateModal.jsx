@@ -114,10 +114,10 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
 
       {/* Tier summary if one is selected */}
       {tier && (
-        <div className="mb-4 p-3 rounded-lg border border-indigo-200 bg-indigo-50">
+        <div className="mb-4 p-3 rounded-lg border border-emerald-200 bg-emerald-50">
           <div className="flex justify-between items-baseline">
             <span className="font-semibold">{tier.title}</span>
-            <span className="text-indigo-600 font-medium">
+            <span className="text-emerald-600 font-medium">
               {formatCurrency(tier.minAmount)}+
             </span>
           </div>
@@ -136,8 +136,8 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
                 onClick={() => setAmount(amt)}
                 className={`px-3 py-1 rounded border text-sm ${
                   amount === amt
-                    ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400'
+                    ? 'bg-emerald-600 text-white border-emerald-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-emerald-400'
                 }`}
               >
                 {formatCurrency(amt)}
@@ -156,7 +156,7 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
             required
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </label>
 
@@ -167,7 +167,7 @@ export default function DonateModal({ open, onClose, campaign, tier, onSuccess }
             onChange={(e) => setMessage(e.target.value)}
             maxLength={280}
             rows={2}
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </label>
 

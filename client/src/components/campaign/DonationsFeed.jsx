@@ -88,7 +88,7 @@ function DonationRow({ donation, highlighted }) {
     <li
       className={`flex items-start gap-3 p-3 rounded-lg border transition-all duration-700 ${
         highlighted
-          ? 'border-indigo-400 bg-indigo-50 shadow-sm'
+          ? 'border-emerald-400 bg-emerald-50 shadow-sm'
           : 'border-gray-100 bg-white'
       }`}
     >
@@ -97,7 +97,7 @@ function DonationRow({ donation, highlighted }) {
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-baseline gap-2">
           <span className="font-medium text-sm truncate">{name}</span>
-          <span className="text-indigo-600 font-semibold text-sm whitespace-nowrap">
+          <span className="text-emerald-600 font-semibold text-sm whitespace-nowrap">
             {formatCurrency(donation.amount)}
           </span>
         </div>
@@ -122,7 +122,7 @@ function Avatar({ name, avatar, initial }) {
   }
   // Deterministic color from name so the same person always gets the same color.
   const colors = [
-    'bg-indigo-500', 'bg-rose-500', 'bg-emerald-500', 'bg-amber-500',
+    'bg-emerald-500', 'bg-rose-500', 'bg-emerald-500', 'bg-amber-500',
     'bg-sky-500', 'bg-purple-500', 'bg-pink-500', 'bg-teal-500',
   ];
   const idx = [...name].reduce((acc, c) => acc + c.charCodeAt(0), 0) % colors.length;

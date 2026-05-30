@@ -64,7 +64,7 @@ export default function Dashboard() {
         </div>
         <Link
           to="/create"
-          className="bg-indigo-600 text-white px-4 py-2 rounded font-medium hover:bg-indigo-700"
+          className="bg-emerald-600 text-white px-4 py-2 rounded font-medium hover:bg-emerald-700"
         >
           + Start a campaign
         </Link>
@@ -170,7 +170,7 @@ function DonationRow({ donation }) {
           <h3 className="font-medium truncate">{c?.title || '(deleted campaign)'}</h3>
           <p className="text-xs text-gray-500">{formatDate(donation.createdAt)}</p>
         </div>
-        <div className="text-lg font-semibold text-indigo-600">
+        <div className="text-lg font-semibold text-emerald-600">
           {formatCurrency(donation.amount)}
         </div>
       </div>
@@ -198,7 +198,7 @@ function EmptyState({ text, ctaText, ctaTo }) {
   return (
     <div className="bg-white rounded-lg shadow p-8 text-center">
       <p className="text-gray-500 mb-4">{text}</p>
-      <Link to={ctaTo} className="text-indigo-600 hover:underline">{ctaText}</Link>
+      <Link to={ctaTo} className="text-emerald-600 hover:underline">{ctaText}</Link>
     </div>
   );
 }

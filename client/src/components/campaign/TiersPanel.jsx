@@ -87,7 +87,7 @@ export default function TiersPanel({ campaignId, isCreator, onSelect }) {
           ) : (
             <button
               onClick={() => setShowForm(true)}
-              className="w-full text-sm text-indigo-600 hover:text-indigo-800 border border-dashed border-indigo-300 rounded-lg py-2"
+              className="w-full text-sm text-emerald-600 hover:text-emerald-800 border border-dashed border-emerald-300 rounded-lg py-2"
             >
               + Add reward tier
             </button>
@@ -108,12 +108,12 @@ function TierCard({ tier, isCreator, onSelect, onDelete }) {
       className={`border rounded-lg p-3 transition relative group ${
         soldOut
           ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
-          : 'border-gray-200 hover:border-indigo-400 hover:bg-indigo-50 cursor-pointer'
+          : 'border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 cursor-pointer'
       }`}
     >
       <div className="flex justify-between items-baseline gap-2">
         <span className="font-semibold text-sm truncate">{tier.title}</span>
-        <span className="text-indigo-600 font-medium text-sm whitespace-nowrap">
+        <span className="text-emerald-600 font-medium text-sm whitespace-nowrap">
           {formatCurrency(tier.minAmount)}+
         </span>
       </div>
@@ -167,7 +167,7 @@ function NewTierForm({ campaignId, onCreated, onCancel }) {
   };
 
   return (
-    <form onSubmit={submit} className="border border-indigo-200 bg-indigo-50/50 rounded-lg p-3 space-y-2">
+    <form onSubmit={submit} className="border border-emerald-200 bg-emerald-50/50 rounded-lg p-3 space-y-2">
       <input
         name="title" placeholder="Tier title (e.g. Early Backer)"
         value={form.title} onChange={onChange} required maxLength={60}

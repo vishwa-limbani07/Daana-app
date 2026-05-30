@@ -1,14 +1,30 @@
-// Login.jsx — email + password -> authApi.login -> dispatch setAuth -> redirect.
-// Mirrors Signup.jsx; kept separate so the two flows can diverge later
-// (e.g. add "forgot password" link, social login buttons, etc.).
+// Login.jsx — picks the active layout based on user's choice and renders the
+// login form inside it. All form state stays here so layouts are pure presentation.
 
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setAuth } from '../store/authSlice.js';
 import { login } from '../api/authApi.js';
 import { useToast } from '../hooks/useToast.js';
-import Button from '../components/common/Button.jsx';
+import { useAuthLayout } from '../hooks/useAuthLayout.js';
+
+import LayoutSplit from '../components/auth/layouts/LayoutSplit.jsx';
+import LayoutSpotlight from '../components/auth/layouts/LayoutSpotlight.jsx';
+import LayoutEditorial from '../components/auth/layouts/LayoutEditorial.jsx';
+
+const LAYOUTS = {
+  split: LayoutSplit,
+  spotlight: LayoutSpotlight,
+  editorial: LayoutEditorial,
+};
+
+const COPY = {
+  title: 'Welcome back',
+  subtitle: 'Log in to back campaigns and manage your own.',
+  showcaseHeading: 'Fund the ideas that matter.',
+  showcaseSub: 'A modern crowdfunding platform built on the MERN stack with Razorpay payments and real-time updates.',
+};
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -17,6 +33,8 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const toast = useToast();
+  const { key } = useAuthLayout();
+  const Layout = LAYOUTS[key];
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -39,44 +57,10 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg shadow p-6 mt-8">
-      <h1 className="text-2xl font-bold mb-6">Log in</h1>
-
-      <form onSubmit={onSubmit} className="space-y-4">
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Email</span>
-          <input
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={onChange}
-            required
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </label>
-
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Password</span>
-          <input
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={onChange}
-            required
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </label>
-
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? 'Logging in...' : 'Log in'}
-        </Button>
-      </form>
-
-      <p className="text-sm text-gray-600 mt-4 text-center">
-        New here? <Link to="/signup" className="text-indigo-600 hover:underline">Create an account</Link>
-      </p>
-    </div>
+    <Layout
+      mode="login"
+      copy={COPY}
+      formProps={{ form, onChange, onSubmit, loading, error }}
+    />
   );
 }

@@ -2,17 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-/* --- Toast slide-in animation ---
- * Used by ToastContainer's animate-[slideIn_0.2s_ease-out] class.
- * Defined here once so Tailwind doesn't need a config change.
+/* --- Animation keyframes ---
+ * Defined globally so Tailwind's animate-[name_duration_easing] utilities pick them up.
  */
+
+/* Toasts (already used by ToastContainer) */
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Hero content entrance — fade + lift up */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Stat counter bobbing for live activity cards */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+/* Underline draw — used on "matter" in hero */
+@keyframes drawUnderline {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Sparkle twinkle for SVG accents */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.1); }
 }

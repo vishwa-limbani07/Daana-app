@@ -1,23 +1,35 @@
-// CampaignDetail.jsx — single campaign view with live updates + reward tiers.
+// CampaignDetail.jsx — redesigned with editorial title + vibrant in-app shell.
 //
-// Two new pieces of state:
-//   selectedTier — set when a donor clicks a tier card; cleared on modal close.
-//   isCreator    — derived from req.user vs campaign.creator. Controls whether
-//                  the TiersPanel shows the add-tier form.
+// One serif moment (the campaign title) ties this page to the Landing/Auth
+// editorial voice. Everything else stays vibrant emerald — this is an
+// in-app surface where energy + clarity matter more than restraint.
+//
+// Live updates: Socket.io pushes new donations → progress card flashes,
+// donations feed prepends, raised + donor counts tick up.
 
 import { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getCampaign } from '../api/campaignApi.js';
 import DonateModal from '../components/campaign/DonateModal.jsx';
 import DonationsFeed from '../components/campaign/DonationsFeed.jsx';
 import ProgressBar from '../components/campaign/ProgressBar.jsx';
 import TiersPanel from '../components/campaign/TiersPanel.jsx';
+import ShareRow from '../components/campaign/ShareRow.jsx';
 import Button from '../components/common/Button.jsx';
 import { CampaignDetailSkeleton } from '../components/common/Skeleton.jsx';
 import { useSocket } from '../hooks/useSocket.js';
 import { formatCurrency } from '../utils/formatCurrency.js';
 import { formatDate, daysLeft } from '../utils/formatDate.js';
+
+const CATEGORY_EMOJI = {
+  education: '📚',
+  medical: '🏥',
+  community: '🏘️',
+  tech: '💻',
+  creative: '🎨',
+  other: '✨',
+};
 
 export default function CampaignDetail() {
   const { id } = useParams();
@@ -54,17 +66,8 @@ export default function CampaignDetail() {
 
   useSocket(id, onDonationLive);
 
-  // Donor clicked a tier card → open modal pre-set to that tier.
-  const openDonateForTier = (tier) => {
-    setSelectedTier(tier);
-    setDonateOpen(true);
-  };
-
-  // "Donate now" button (no tier) → open modal as before.
-  const openDonateFreeAmount = () => {
-    setSelectedTier(null);
-    setDonateOpen(true);
-  };
+  const openDonateForTier = (tier) => { setSelectedTier(tier); setDonateOpen(true); };
+  const openDonateFreeAmount = () => { setSelectedTier(null); setDonateOpen(true); };
 
   if (loading) return <CampaignDetailSkeleton />;
   if (error) return <p className="text-red-600">{error}</p>;
@@ -76,60 +79,104 @@ export default function CampaignDetail() {
   const isCreator = Boolean(
     currentUser && campaign.creator && (campaign.creator._id === currentUser._id || campaign.creator === currentUser._id)
   );
+  const creator = campaign.creator || {};
+  const initial = (creator.name || '?')[0].toUpperCase();
+  const categoryEmoji = CATEGORY_EMOJI[campaign.category] || CATEGORY_EMOJI.other;
 
   return (
     <>
-      <article className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <img src={campaign.coverImage} alt={campaign.title} className="w-full rounded-lg" />
+      {/* ============== HERO IMAGE ============== */}
+      <div className="relative rounded-2xl overflow-hidden mb-8 shadow-sm">
+        <img
+          src={campaign.coverImage}
+          alt={campaign.title}
+          className="w-full aspect-[16/7] object-cover"
+        />
+        {/* Soft gradient overlay so the category chip stays readable */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+        <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-medium text-gray-800">
+          <span>{categoryEmoji}</span>
+          <span className="capitalize">{campaign.category}</span>
+        </span>
+      </div>
 
+      <article className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* ============== LEFT — MAIN CONTENT ============== */}
+        <div className="lg:col-span-2 space-y-10">
+          {/* Title block — the one editorial moment in this page */}
+          <header>
+            <h1 className="font-serif text-4xl md:text-5xl text-gray-900 tracking-tight leading-[1.1]">
+              {campaign.title}
+            </h1>
+
+            <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
+              <CreatorChip creator={creator} initial={initial} />
+              <span className="text-gray-300">·</span>
+              <span>Ends {formatDate(campaign.deadline)}</span>
+            </div>
+
+            <div className="mt-5">
+              <ShareRow campaign={campaign} />
+            </div>
+          </header>
+
+          {/* Story */}
           <div>
-            <h1 className="text-3xl font-bold">{campaign.title}</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              by {campaign.creator?.name} · {campaign.category} · ends {formatDate(campaign.deadline)}
-            </p>
-            <div className="prose mt-6 whitespace-pre-wrap text-gray-800">{campaign.story}</div>
+            <h2 className="text-xs uppercase tracking-widest text-gray-500 mb-3">The story</h2>
+            <div className="prose prose-gray max-w-none whitespace-pre-wrap text-gray-800 leading-relaxed">
+              {campaign.story}
+            </div>
           </div>
 
+          {/* Recent backers */}
           <section>
-            <h2 className="text-xl font-semibold mb-3">Recent backers</h2>
+            <h2 className="text-xs uppercase tracking-widest text-gray-500 mb-3">Recent backers</h2>
             <DonationsFeed campaignId={id} newDonation={latestDonation} />
           </section>
         </div>
 
-        <aside className="space-y-4 lg:sticky lg:top-4 h-fit">
-          {/* Progress card */}
+        {/* ============== RIGHT — STICKY SIDEBAR ============== */}
+        <aside className="space-y-4 lg:sticky lg:top-20 h-fit">
+          {/* Progress + Donate card */}
           <div
-            className={`bg-white rounded-lg shadow p-6 transition-shadow ${
-              flash ? 'ring-4 ring-indigo-400 shadow-lg' : ''
+            className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all ${
+              flash ? 'ring-4 ring-emerald-300 shadow-lg' : ''
             }`}
           >
-            <div className="text-2xl font-bold">{formatCurrency(campaign.raisedAmount)}</div>
-            <div className="text-sm text-gray-500">raised of {formatCurrency(campaign.goalAmount)} goal</div>
-            <ProgressBar percent={pct} />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold text-gray-900">
+                {formatCurrency(campaign.raisedAmount)}
+              </span>
+              <span className="text-sm text-gray-500">raised</span>
+            </div>
+            <div className="text-sm text-gray-500">
+              of {formatCurrency(campaign.goalAmount)} goal · <span className="text-emerald-700 font-medium">{pct}%</span>
+            </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-4 text-center">
-              <div>
-                <div className="font-bold">{campaign.donorCount}</div>
-                <div className="text-xs text-gray-500">donors</div>
-              </div>
-              <div>
-                <div className="font-bold">{daysLeft(campaign.deadline)}</div>
-                <div className="text-xs text-gray-500">days left</div>
-              </div>
+            <ProgressBar percent={pct} showMilestones />
+
+            <div className="grid grid-cols-2 gap-3 mt-6 pt-5 border-t border-gray-100">
+              <Stat value={campaign.donorCount} label={campaign.donorCount === 1 ? 'backer' : 'backers'} />
+              <Stat value={daysLeft(campaign.deadline)} label={daysLeft(campaign.deadline) === 1 ? 'day left' : 'days left'} />
             </div>
 
             <Button
-              className="w-full mt-6"
+              className="w-full mt-6 !py-3"
               onClick={openDonateFreeAmount}
               disabled={!canDonate}
             >
-              {canDonate ? 'Donate now' : isExpired ? 'Campaign ended' : 'Not accepting'}
+              {canDonate ? 'Back this campaign →' : isExpired ? 'Campaign ended' : 'Not accepting'}
             </Button>
+
+            {!canDonate && isExpired && (
+              <p className="text-xs text-center text-gray-500 mt-2">
+                The deadline has passed.
+              </p>
+            )}
           </div>
 
           {/* Tiers */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <TiersPanel
               campaignId={id}
               isCreator={isCreator}
@@ -147,5 +194,35 @@ export default function CampaignDetail() {
         onSuccess={() => {}}
       />
     </>
+  );
+}
+
+// --- small subcomponents ---
+
+function CreatorChip({ creator, initial }) {
+  const hashColor = ['bg-indigo-500','bg-rose-500','bg-emerald-500','bg-amber-500','bg-sky-500','bg-purple-500'];
+  const idx = [...(creator.name || '?')].reduce((a, c) => a + c.charCodeAt(0), 0) % hashColor.length;
+  return (
+    <span className="inline-flex items-center gap-2">
+      {creator.avatar ? (
+        <img src={creator.avatar} alt={creator.name} className="w-7 h-7 rounded-full object-cover" />
+      ) : (
+        <span className={`w-7 h-7 rounded-full ${hashColor[idx]} text-white flex items-center justify-center text-xs font-semibold`}>
+          {initial}
+        </span>
+      )}
+      <span>
+        by <span className="font-medium text-gray-900">{creator.name || 'Unknown'}</span>
+      </span>
+    </span>
+  );
+}
+
+function Stat({ value, label }) {
+  return (
+    <div className="text-center">
+      <div className="text-xl font-bold text-gray-900">{value}</div>
+      <div className="text-xs text-gray-500">{label}</div>
+    </div>
   );
 }

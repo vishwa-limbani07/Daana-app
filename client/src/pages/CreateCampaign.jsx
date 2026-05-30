@@ -113,7 +113,7 @@ export default function CreateCampaign() {
           <span className="text-sm font-medium text-gray-700">Title</span>
           <input
             name="title" value={form.title} onChange={onChange} required maxLength={120}
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </label>
 
@@ -121,7 +121,7 @@ export default function CreateCampaign() {
           <span className="text-sm font-medium text-gray-700">Your story</span>
           <textarea
             name="story" value={form.story} onChange={onChange} required rows={6}
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </label>
 
@@ -130,7 +130,7 @@ export default function CreateCampaign() {
             <span className="text-sm font-medium text-gray-700">Goal (₹)</span>
             <input
               name="goalAmount" type="number" min={1} value={form.goalAmount} onChange={onChange} required
-              className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </label>
 
@@ -138,7 +138,7 @@ export default function CreateCampaign() {
             <span className="text-sm font-medium text-gray-700">Deadline</span>
             <input
               name="deadline" type="date" min={tomorrow()} value={form.deadline} onChange={onChange} required
-              className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </label>
 
@@ -146,7 +146,7 @@ export default function CreateCampaign() {
             <span className="text-sm font-medium text-gray-700">Category</span>
             <select
               name="category" value={form.category} onChange={onChange}
-              className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -157,7 +157,7 @@ export default function CreateCampaign() {
           <span className="text-sm font-medium text-gray-700">Cover image (max 5MB)</span>
           <input
             type="file" accept="image/*" onChange={onFileChange}
-            className="mt-1 block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+            className="mt-1 block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
           />
         </label>
 
